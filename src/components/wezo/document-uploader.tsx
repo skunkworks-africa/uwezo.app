@@ -12,17 +12,19 @@ import { Loader2, UploadCloud, FileText, Sparkles } from "lucide-react";
 
 type FormInputs = {
   cv: FileList;
-  nda: FileList;
 };
 
-export function DocumentUploader() {
+interface DocumentUploaderProps {
+    onAnalysisComplete: () => void;
+}
+
+export function DocumentUploader({ onAnalysisComplete }: DocumentUploaderProps) {
   const [extractedSkills, setExtractedSkills] = useState<ExtractSkillsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, watch } = useForm<FormInputs>();
 
   const cvFile = watch("cv");
-  const ndaFile = watch("nda");
 
   const readFileAsDataURI = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -48,6 +50,9 @@ export function DocumentUploader() {
       const cvDataUri = await readFileAsDataURI(file);
       const result = await extractSkills({ cvDataUri });
       setExtractedSkills(result);
+      if (result.skills.length > 0) {
+        onAnalysisComplete();
+      }
     } catch (e) {
       console.error(e);
       setError("Failed to extract skills from CV. Please try again.");
@@ -59,9 +64,9 @@ export function DocumentUploader() {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Upload Documents</CardTitle>
+        <CardTitle>CV Skill Analysis</CardTitle>
         <CardDescription>
-          Securely upload your CV and signed NDA. We'll analyze your CV to identify key skills.
+          Upload your CV and our AI will analyze it to identify your key skills.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -76,25 +81,14 @@ export function DocumentUploader() {
               </div>
             )}
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="nda-upload">Signed NDA</Label>
-            <Input id="nda-upload" type="file" accept=".pdf" {...register("nda")} />
-            {ndaFile && ndaFile.length > 0 && (
-              <div className="text-sm text-muted-foreground flex items-center gap-2 pt-1">
-                <FileText className="h-4 w-4" />
-                <span>{ndaFile[0].name}</span>
-              </div>
-            )}
-          </div>
           
           <Button type="submit" className="w-full" disabled={isLoading || !cvFile || cvFile.length === 0}>
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <UploadCloud className="mr-2 h-4 w-4" />
+              <Sparkles className="mr-2 h-4 w-4" />
             )}
-            {isLoading ? "Analyzing..." : "Upload & Analyze CV"}
+            {isLoading ? "Analyzing..." : "Analyze CV"}
           </Button>
         </form>
 

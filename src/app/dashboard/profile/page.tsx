@@ -49,7 +49,7 @@ export default function ProfilePage() {
                 <CardHeader>
                     <CardTitle>Professional Links</CardTitle>
                     <CardDescription>Links to your work and social profiles.</CardDescription>
-                </Header>
+                </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="linkedin">LinkedIn</Label>

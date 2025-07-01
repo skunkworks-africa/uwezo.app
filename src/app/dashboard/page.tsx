@@ -5,6 +5,7 @@ import { AiAssistant } from "@/components/wezo/ai-assistant";
 import { DocumentUploader } from "@/components/wezo/document-uploader";
 import { ProgressTracker } from "@/components/wezo/progress-tracker";
 import { TaskList } from "@/components/wezo/task-list";
+import { NdaViewer } from "@/components/wezo/nda-viewer";
 
 export interface Task {
   id: number;
@@ -12,8 +13,13 @@ export interface Task {
   completed: boolean;
 }
 
-// Per your request, the app no longer contains sample data.
-const initialTasks: Task[] = [];
+const initialTasks: Task[] = [
+  { id: 1, title: "Review and Sign NDA", completed: false },
+  { id: 2, title: "Upload CV for Skill Analysis", completed: false },
+  { id: 3, title: "Complete Profile Information", completed: false },
+  { id: 4, title: "Meet your onboarding buddy", completed: false },
+];
+
 
 export default function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -29,6 +35,14 @@ export default function DashboardPage() {
   const completedTasks = useMemo(() => tasks.filter((task) => task.completed).length, [tasks]);
   const totalTasks = tasks.length;
   const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  
+  const handleNdaSigned = () => {
+    handleTaskCompletionChange(1, true);
+  };
+  
+  const handleCvAnalyzed = () => {
+    handleTaskCompletionChange(2, true);
+  }
 
   return (
     <div className="space-y-8">
@@ -37,7 +51,8 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-8">
             <TaskList tasks={tasks} onTaskCompletionChange={handleTaskCompletionChange} />
-            <DocumentUploader />
+            <NdaViewer onSigned={handleNdaSigned} />
+            <DocumentUploader onAnalysisComplete={handleCvAnalyzed} />
         </div>
         
         <div className="lg:col-span-1 lg:sticky lg:top-24">
