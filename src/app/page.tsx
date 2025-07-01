@@ -19,29 +19,24 @@ export default function LandingPage() {
           </Button>
         </nav>
       </header>
-      <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                  Streamline Your Career Journey
-                </h1>
-                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  Wezo helps you manage your applications, track your onboarding progress, and build your professional profile, all in one place.
-                </p>
-              </div>
-              <div className="space-x-4 mt-6">
-                 <Button asChild size="lg">
-                    <Link href="/signup">Get Started</Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
+      <main className="flex-1 flex items-center justify-center p-4">
+        <Link href="/login" aria-label="Go to login page">
+            <WezoLogo className="h-48 w-48 sm:h-64 sm:w-64 text-primary transition-transform duration-300 ease-in-out hover:scale-105" />
+        </Link>
       </main>
        <footer className="flex items-center justify-center h-16 border-t">
-        <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Wezo. All rights reserved.</p>
+        <p className="text-sm text-muted-foreground">
+          &copy; {new Date().getFullYear()}&nbsp;
+          <a
+            href="https://skunkworks.africa"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium underline underline-offset-4 hover:text-primary transition-colors"
+          >
+            Skunkworks
+          </a>
+          . All rights reserved.
+        </p>
       </footer>
     </div>
   );
