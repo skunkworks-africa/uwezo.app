@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User, Mail, Briefcase, Linkedin, Github, Globe, Award, FileUp, UploadCloud } from "lucide-react"
+import { User, Mail, Briefcase, Linkedin, Github, Globe, Award, FileUp, UploadCloud, Facebook, Instagram, FileText, MessageSquare } from "lucide-react"
 
 export default function ProfilePage() {
   return (
@@ -97,6 +97,34 @@ export default function ProfilePage() {
                  <div className="relative">
                     <Award className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input id="credly" placeholder="https://www.credly.com/users/..." className="pl-10" />
+                 </div>
+              </div>
+               <div className="space-y-2">
+                <Label htmlFor="facebook">Facebook</Label>
+                 <div className="relative">
+                    <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input id="facebook" placeholder="https://facebook.com/..." className="pl-10" />
+                 </div>
+              </div>
+               <div className="space-y-2">
+                <Label htmlFor="instagram">Instagram</Label>
+                 <div className="relative">
+                    <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input id="instagram" placeholder="https://instagram.com/..." className="pl-10" />
+                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="kickresume">Kickresume</Label>
+                 <div className="relative">
+                    <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input id="kickresume" placeholder="https://kickresume.com/..." className="pl-10" />
+                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="whatsapp">WhatsApp Chat</Label>
+                 <div className="relative">
+                    <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input id="whatsapp" placeholder="Enter your WhatsApp number" className="pl-10" />
                  </div>
               </div>
             </CardContent>
