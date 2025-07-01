@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { User, Settings, LifeBuoy, LogOut } from "lucide-react"
+import { User, Settings, LifeBuoy, LogOut, BrainCircuit } from "lucide-react"
 
 export function UserNav() {
   return (
@@ -44,6 +44,12 @@ export function UserNav() {
             <Link href="/dashboard/profile">
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
+            </Link>
+          </DropdownMenuItem>
+           <DropdownMenuItem asChild>
+            <Link href="/dashboard/quiz">
+              <BrainCircuit className="mr-2 h-4 w-4" />
+              <span>Aptitude Quiz</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
