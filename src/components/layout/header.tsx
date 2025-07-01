@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { WezoLogo } from "@/components/wezo/logo";
+import Image from "next/image";
 import { UserNav } from "@/components/layout/user-nav";
 
 export default function Header() {
@@ -9,8 +9,13 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="flex items-center gap-2">
-                <WezoLogo />
-                <h1 className="text-2xl font-bold">Wezo</h1>
+              <Image
+                src="https://raw.githubusercontent.com/burnt-exe/wezo/refs/heads/main/wezo-long.png"
+                alt="Wezo Logo"
+                width={120}
+                height={30}
+                priority
+              />
             </Link>
           </div>
           <UserNav />

@@ -1,14 +1,19 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { WezoLogo } from "@/components/wezo/logo";
+import Image from "next/image";
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="px-4 lg:px-6 h-16 flex items-center border-b">
         <Link href="/" className="flex items-center justify-center gap-2">
-            <WezoLogo />
-            <span className="text-2xl font-bold">Wezo</span>
+            <Image
+                src="https://raw.githubusercontent.com/burnt-exe/wezo/refs/heads/main/wezo-long.png"
+                alt="Wezo Logo"
+                width={120}
+                height={30}
+                priority
+            />
         </Link>
         <nav className="ml-auto flex items-center gap-4">
           <Button variant="ghost" asChild>
@@ -21,7 +26,14 @@ export default function LandingPage() {
       </header>
       <main className="flex-1 flex items-center justify-center p-4">
         <Link href="/login" aria-label="Go to login page">
-            <WezoLogo className="h-48 w-48 sm:h-64 sm:w-64 text-primary transition-transform duration-300 ease-in-out hover:scale-105" />
+            <Image
+                src="https://raw.githubusercontent.com/burnt-exe/wezo/refs/heads/main/wezo-hero.png"
+                alt="Wezo Hero"
+                width={256}
+                height={256}
+                className="transition-transform duration-300 ease-in-out hover:scale-105"
+                priority
+            />
         </Link>
       </main>
        <footer className="flex items-center justify-center h-16 border-t">
