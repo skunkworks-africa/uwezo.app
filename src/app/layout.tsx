@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Wezo - Onboarding',
-  description: 'Welcome to your onboarding journey with Wezo.',
+  title: 'Wezo',
+  description: 'Streamline Your Career Journey',
 };
 
 export default function RootLayout({
