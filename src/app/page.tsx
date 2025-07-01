@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Briefcase } from "lucide-react";
+import { WalletCards } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -8,7 +8,7 @@ export default function LandingPage() {
       <header className="px-4 lg:px-6 h-16 flex items-center border-b">
         <Link href="/" className="flex items-center justify-center gap-3">
             <div className="p-2 bg-primary rounded-lg">
-                <Briefcase className="h-6 w-6 text-primary-foreground" />
+                <WalletCards className="h-6 w-6 text-primary-foreground" />
             </div>
             <span className="text-2xl font-bold">Wezo</span>
         </Link>

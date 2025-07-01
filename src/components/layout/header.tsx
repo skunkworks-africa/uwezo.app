@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Briefcase } from "lucide-react";
+import { WalletCards } from "lucide-react";
 import { UserNav } from "@/components/layout/user-nav";
 
 export default function Header() {
@@ -10,7 +10,7 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="flex items-center gap-3">
                 <div className="p-2 bg-primary rounded-lg">
-                    <Briefcase className="h-6 w-6 text-primary-foreground" />
+                    <WalletCards className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <h1 className="text-2xl font-bold">Wezo</h1>
             </Link>
