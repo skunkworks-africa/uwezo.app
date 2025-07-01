@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { WalletCards } from "lucide-react";
+import { WezoLogo } from "@/components/wezo/logo";
 import { UserNav } from "@/components/layout/user-nav";
 
 export default function Header() {
@@ -8,10 +8,8 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-3">
-                <div className="p-2 bg-primary rounded-lg">
-                    <WalletCards className="h-6 w-6 text-primary-foreground" />
-                </div>
+            <Link href="/dashboard" className="flex items-center gap-2">
+                <WezoLogo />
                 <h1 className="text-2xl font-bold">Wezo</h1>
             </Link>
           </div>

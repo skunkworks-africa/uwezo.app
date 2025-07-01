@@ -1,15 +1,13 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { WalletCards } from "lucide-react";
+import { WezoLogo } from "@/components/wezo/logo";
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="px-4 lg:px-6 h-16 flex items-center border-b">
-        <Link href="/" className="flex items-center justify-center gap-3">
-            <div className="p-2 bg-primary rounded-lg">
-                <WalletCards className="h-6 w-6 text-primary-foreground" />
-            </div>
+        <Link href="/" className="flex items-center justify-center gap-2">
+            <WezoLogo />
             <span className="text-2xl font-bold">Wezo</span>
         </Link>
         <nav className="ml-auto flex items-center gap-4">
