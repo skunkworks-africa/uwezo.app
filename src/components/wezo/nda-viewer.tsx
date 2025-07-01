@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,16 +21,9 @@ const NdaSchema = z.object({
 
 type NdaFormValues = z.infer<typeof NdaSchema>;
 
-const getTodaysDate = () => {
-    if (typeof window !== 'undefined') {
-        return new Date().toLocaleDateString()
-    }
-    return '';
-}
+const ndaContentTemplate = `MUTUAL NON-DISCLOSURE AND CONFIDENTIALITY AGREEMENT
 
-const ndaContent = `MUTUAL NON-DISCLOSURE AND CONFIDENTIALITY AGREEMENT
-
-This agreement is entered on ${getTodaysDate()} by and between:
+This agreement is entered on {DATE} by and between:
 Wezo Inc., a company duly incorporated, with its principal place of business at 123 Innovation Drive, Tech City, including its successors and assigns (the “Company”), and you, the user (the “Recipient”).
 
 The parties possess competitively valuable Confidential Information (as hereinafter defined) regarding their past, current and future services and products, research and development, customers, business plans, software, listings, holdings, alliances, investments, transactions, intellectual property and rights associated thereto and general business operations. The parties wish to enter into a mutually beneficial relationship, and as such, wish to share their Confidential Information with the other party, including its authorized employees and agents. For the purposes of this Agreement, the party that discloses Confidential Information to the other party shall be referred to as the “Disclosing Party” and the party that receives such Confidential Information from the other party shall be referred to as the “Recipient”.
@@ -55,6 +48,12 @@ Confidential Information does not include information, which:
 export function NdaViewer({ onSigned }: { onSigned: () => void }) {
   const [isSigned, setIsSigned] = useState(false);
   const [signature, setSignature] = useState({ name: "", date: "" });
+  const [date, setDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    // This runs only on the client, after hydration
+    setDate(new Date().toLocaleDateString());
+  }, []); // Empty dependency array ensures this runs once on mount
 
   const form = useForm<NdaFormValues>({
     resolver: zodResolver(NdaSchema),
@@ -73,10 +72,7 @@ export function NdaViewer({ onSigned }: { onSigned: () => void }) {
     onSigned();
   };
   
-  const [date, setDate] = useState('');
-  useState(() => {
-    setDate(new Date().toLocaleDateString());
-  });
+  const finalNdaContent = date ? ndaContentTemplate.replace('{DATE}', date) : 'Loading agreement...';
 
   if (isSigned) {
     return (
@@ -110,7 +106,7 @@ export function NdaViewer({ onSigned }: { onSigned: () => void }) {
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-64 w-full rounded-md border p-4 mb-6">
-          <pre className="whitespace-pre-wrap text-sm font-sans">{ndaContent.replace('${getTodaysDate()}', date)}</pre>
+          <pre className="whitespace-pre-wrap text-sm font-sans">{finalNdaContent}</pre>
         </ScrollArea>
         
         <Form {...form}>
