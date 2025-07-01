@@ -12,13 +12,10 @@ export default function LandingPage() {
             </div>
             <span className="text-2xl font-bold">Wezo</span>
         </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link
-            href="/login"
-            className="text-sm font-medium hover:underline underline-offset-4"
-          >
-            Login
-          </Link>
+        <nav className="ml-auto flex items-center gap-4">
+          <Button variant="ghost" asChild>
+            <Link href="/login">Login</Link>
+          </Button>
           <Button asChild>
             <Link href="/signup">Sign Up</Link>
           </Button>
