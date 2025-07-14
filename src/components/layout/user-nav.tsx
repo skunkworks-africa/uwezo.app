@@ -19,6 +19,15 @@ import { User, Settings, LifeBuoy, LogOut, BrainCircuit } from "lucide-react";
 export function UserNav() {
   const { user, signOut } = useAuth();
 
+  // If still loading or no user, show a login button or a loading state
+  if (!user) {
+    return (
+       <Button asChild variant="outline">
+        <Link href="/login">Login</Link>
+      </Button>
+    )
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
