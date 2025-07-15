@@ -11,6 +11,8 @@ import {
 import { updateProfile } from "firebase/auth";
 import { storage } from "@/lib/firebase";
 import { useAuth } from "./use-auth";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 export function useStorage() {
   const { user } = useAuth();
@@ -22,6 +24,11 @@ export function useStorage() {
     file: File,
     updateUserAvatar = false
   ): Promise<string | null> => {
+    if (!user) {
+        setUploadError("User not authenticated.");
+        return null;
+    }
+
     setIsUploading(true);
     setUploadError(null);
 
@@ -30,8 +37,10 @@ export function useStorage() {
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
 
-      if (updateUserAvatar && user) {
+      if (updateUserAvatar) {
         await updateProfile(user, { photoURL: downloadURL });
+        const userDocRef = doc(db, "users", user.uid);
+        await updateDoc(userDocRef, { photoURL: downloadURL });
       }
 
       setIsUploading(false);
@@ -57,3 +66,5 @@ export function useStorage() {
 
   return { isUploading, uploadError, uploadFile, deleteFile };
 }
+
+    
