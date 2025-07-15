@@ -9,6 +9,7 @@ import { NdaViewer } from "@/components/wezo/nda-viewer";
 import { useDashboard } from "./layout";
 import { QuizHistory } from "@/components/wezo/quiz-history";
 import { OnboardingChat } from "@/components/wezo/onboarding-chat";
+import { VideoIntroduction } from "@/components/wezo/video-introduction";
 
 export interface Task {
   id: number;
@@ -27,6 +28,10 @@ export default function DashboardPage() {
     handleTaskCompletionChange(2, true);
   }
 
+  const handleVideoRecorded = () => {
+    handleTaskCompletionChange(5, true);
+  }
+
   const handleQuizCompleted = () => {
     const quizTask = tasks.find(t => t.title.includes("Aptitude Quiz"));
     if (quizTask) {
@@ -43,6 +48,7 @@ export default function DashboardPage() {
                 <TaskList tasks={tasks} onTaskCompletionChange={handleTaskCompletionChange} />
                 <QuizHistory />
                 <NdaViewer onSigned={handleNdaSigned} />
+                <VideoIntroduction onRecordingComplete={handleVideoRecorded} />
                 <DocumentUploader onAnalysisComplete={handleCvAnalyzed} />
             </div>
             
