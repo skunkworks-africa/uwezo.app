@@ -2,13 +2,22 @@
 "use client";
 
 import { useState, useEffect, useContext, createContext } from "react";
-import { onAuthStateChanged, signOut as firebaseSignOut, type User } from "firebase/auth";
+import { 
+  onAuthStateChanged, 
+  signOut as firebaseSignOut, 
+  GoogleAuthProvider, 
+  signInWithPopup,
+  type User 
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => void;
 }
 
@@ -27,6 +36,38 @@ export function useAuthContext() {
 
     return () => unsubscribe();
   }, []);
+  
+  const handleUserInFirestore = async (firebaseUser: User) => {
+    const userDocRef = doc(db, "users", firebaseUser.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+      // Create user document if it doesn't exist
+      const [firstName, lastName] = firebaseUser.displayName?.split(" ") || ["", ""];
+      await setDoc(userDocRef, {
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName,
+        photoURL: firebaseUser.photoURL,
+        firstName: firstName,
+        lastName: lastName,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+    }
+  }
+
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      await handleUserInFirestore(result.user);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      throw error;
+    }
+  };
 
   const signOut = async () => {
     try {
@@ -37,7 +78,7 @@ export function useAuthContext() {
     }
   };
   
-  return { user, isLoading, signOut };
+  return { user, isLoading, signInWithGoogle, signOut };
 }
 
 
