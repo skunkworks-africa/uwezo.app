@@ -1,27 +1,63 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Users can read and update their own profile.
-    // They can create their own document if it doesn't exist.
-    match /users/{userId} {
-      allow read, update: if request.auth != null && request.auth.uid == userId;
-      allow create: if request.auth != null && request.auth.uid == userId;
+    // ────────────── 🔧 Helper Functions ──────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
 
-      // Users can create and read their own quiz attempts.
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isParticipant(participants) {
+      return isSignedIn() && request.auth.uid in participants;
+    }
+
+    // ────────────── 👤 User Profile ──────────────
+    match /users/{userId} {
+      allow read, update, delete: if isUser(userId);
+      allow create: if isUser(userId) && !exists(/databases/$(database)/documents/users/$(userId));
+
+      // ───── 🎯 Quiz Attempts (subcollection) ─────
       match /quizAttempts/{attemptId} {
-        allow read, create: if request.auth != null && request.auth.uid == userId;
+        allow read, create: if isUser(userId);
       }
     }
 
-    // Chat participants can read and write messages in their chat.
+    // ────────────── 💬 Chats and Messaging ──────────────
     match /chats/{chatId} {
-      allow read, update: if request.auth != null && request.auth.uid in resource.data.participants;
+      allow create: if isSignedIn(); // allow chat creation
+      allow read, update, delete: if isParticipant(resource.data.participants);
 
       match /messages/{messageId} {
-        allow read, create: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow read, create: if isParticipant(get(/databases/$(database)/documents/chats/$(chatId)).data.participants);
+      }
+    }
+
+    // ────────────── 📄 User CV Data ──────────────
+    match /cv_data/{userId} {
+      allow create, read, update, delete: if isUser(userId);
+    }
+
+    // ────────────── 📑 NDA Agreements ──────────────
+    match /nda_data/{userId} {
+      allow create, read, update, delete: if isUser(userId);
+    }
+
+    // ────────────── 📦 Future User Data Model (optional structure) ──────────────
+    match /userData/{userId} {
+      allow read, update, delete: if isUser(userId);
+      allow create: if isUser(userId) && !exists(/databases/$(database)/documents/userData/$(userId));
+
+      match /cv/{cvId} {
+        allow read, write, delete: if isUser(userId);
+      }
+
+      match /nda/{ndaId} {
+        allow read, write, delete: if isUser(userId);
       }
     }
   }
