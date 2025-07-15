@@ -5,13 +5,13 @@ import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyDj1lusHI8516MOVS22hhe8kEWYQ9IC0Gs",
+  authDomain: "wezo-oz0gb.firebaseapp.com",
+  projectId: "wezo-oz0gb",
+  storageBucket: "wezo-oz0gb.firebasestorage.app",
+  messagingSenderId: "883070171885",
+  appId: "1:883070171885:web:f03464f9d0d529e143eae4",
+  measurementId: "G-GECT9V6674",
 };
 
 // Initialize Firebase
