@@ -8,6 +8,7 @@ import { TaskList } from "@/components/wezo/task-list";
 import { NdaViewer } from "@/components/wezo/nda-viewer";
 import { useDashboard } from "./layout";
 import { QuizHistory } from "@/components/wezo/quiz-history";
+import { OnboardingChat } from "@/components/wezo/onboarding-chat";
 
 export interface Task {
   id: number;
@@ -38,16 +39,17 @@ export default function DashboardPage() {
         <ProgressTracker progress={progressPercentage} />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div className="lg:col-span-2 space-y-8">
-            <TaskList tasks={tasks} onTaskCompletionChange={handleTaskCompletionChange} />
-            <QuizHistory />
-            <NdaViewer onSigned={handleNdaSigned} />
-            <DocumentUploader onAnalysisComplete={handleCvAnalyzed} />
-        </div>
-        
-        <div className="lg:col-span-1 lg:sticky lg:top-24">
-            <AiAssistant />
-        </div>
+            <div className="lg:col-span-2 space-y-8">
+                <TaskList tasks={tasks} onTaskCompletionChange={handleTaskCompletionChange} />
+                <QuizHistory />
+                <NdaViewer onSigned={handleNdaSigned} />
+                <DocumentUploader onAnalysisComplete={handleCvAnalyzed} />
+            </div>
+            
+            <div className="lg:col-span-1 space-y-8 lg:sticky lg:top-24">
+                <AiAssistant />
+                <OnboardingChat />
+            </div>
         </div>
     </div>
   );
