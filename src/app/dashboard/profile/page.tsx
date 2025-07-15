@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 const profileSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -507,5 +508,3 @@ function ProfileSkeleton() {
     </div>
   );
 }
-
-    
