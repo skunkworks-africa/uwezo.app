@@ -9,7 +9,8 @@ const initialTasks: Task[] = [
   { id: 1, title: "Review and Sign NDA", completed: false },
   { id: 2, title: "Upload CV for Skill Analysis", completed: false },
   { id: 3, title: "Complete Profile Information", completed: false },
-  { id: 4, title: "Meet your onboarding buddy", completed: false },
+  { id: 4, title: "Take the Aptitude Quiz", completed: false },
+  { id: 5, title: "Meet your onboarding buddy", completed: false },
 ];
 
 interface DashboardContextType {

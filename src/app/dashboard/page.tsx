@@ -7,6 +7,7 @@ import { ProgressTracker } from "@/components/wezo/progress-tracker";
 import { TaskList } from "@/components/wezo/task-list";
 import { NdaViewer } from "@/components/wezo/nda-viewer";
 import { useDashboard } from "./layout";
+import { QuizHistory } from "@/components/wezo/quiz-history";
 
 export interface Task {
   id: number;
@@ -25,6 +26,13 @@ export default function DashboardPage() {
     handleTaskCompletionChange(2, true);
   }
 
+  const handleQuizCompleted = () => {
+    const quizTask = tasks.find(t => t.title.includes("Aptitude Quiz"));
+    if (quizTask) {
+        handleTaskCompletionChange(quizTask.id, true);
+    }
+  }
+
   return (
     <div className="space-y-8">
         <ProgressTracker progress={progressPercentage} />
@@ -32,6 +40,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-8">
             <TaskList tasks={tasks} onTaskCompletionChange={handleTaskCompletionChange} />
+            <QuizHistory />
             <NdaViewer onSigned={handleNdaSigned} />
             <DocumentUploader onAnalysisComplete={handleCvAnalyzed} />
         </div>

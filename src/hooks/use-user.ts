@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, addDoc, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
 import { useAuth } from "./use-auth";
 import { db } from "@/lib/firebase";
@@ -27,20 +27,30 @@ export interface UserData {
   updatedAt: any;
 }
 
+export interface QuizAttempt {
+    id: string;
+    score: number;
+    passed: boolean;
+    timestamp: any;
+}
+
 export function useUser() {
   const { user } = useAuth();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
 
   const fetchUserData = useCallback(async () => {
     if (!user) {
       setUserData(null);
+      setQuizAttempts([]);
       setLoadingUser(false);
       return;
     }
 
     setLoadingUser(true);
     try {
+      // Fetch user document
       const userDocRef = doc(db, "users", user.uid);
       const userDocSnap = await getDoc(userDocRef);
 
@@ -62,6 +72,14 @@ export function useUser() {
         await setDoc(userDocRef, newUser, { merge: true });
         setUserData(newUser);
       }
+      
+      // Fetch quiz attempts
+      const attemptsCollectionRef = collection(db, "users", user.uid, "quizAttempts");
+      const q = query(attemptsCollectionRef, orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+      const attempts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as QuizAttempt));
+      setQuizAttempts(attempts);
+
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
@@ -96,8 +114,20 @@ export function useUser() {
     // Optimistically update local state
     setUserData(prev => prev ? { ...prev, ...dataToUpdate } : null);
   };
+  
+  const addQuizAttempt = async (attempt: { score: number, passed: boolean }) => {
+      if (!user) throw new Error("User not authenticated");
+      
+      const attemptsCollectionRef = collection(db, "users", user.uid, "quizAttempts");
+      const newAttempt = {
+          ...attempt,
+          timestamp: serverTimestamp()
+      }
+      await addDoc(attemptsCollectionRef, newAttempt);
 
-  return { userData, loadingUser, updateUserProfile };
+      // Refresh quiz attempts data locally
+      await fetchUserData();
+  }
+
+  return { userData, quizAttempts, loadingUser, updateUserProfile, addQuizAttempt };
 }
-
-    

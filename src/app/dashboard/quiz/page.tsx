@@ -7,7 +7,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, RotateCcw, XCircle } from "lucide-react";
+import { CheckCircle, RotateCcw, XCircle, Loader2 } from "lucide-react";
+import { useUser } from "@/hooks/use-user";
+import { useDashboard } from "../layout";
 
 type QuizQuestion = {
   section: string;
@@ -260,10 +262,13 @@ const quizQuestions: QuizQuestion[] = [
 
 
 export default function QuizPage() {
+  const { addQuizAttempt } = useUser();
+  const { handleTaskCompletionChange, tasks } = useDashboard();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAnswerSelect = (questionIndex: number, answer: string) => {
     setAnswers({ ...answers, [questionIndex]: answer });
@@ -275,7 +280,8 @@ export default function QuizPage() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
     let correctAnswers = 0;
     quizQuestions.forEach((q, index) => {
       if (answers[index] === q.correctAnswer) {
@@ -284,7 +290,20 @@ export default function QuizPage() {
     });
     const finalScore = Math.round((correctAnswers / quizQuestions.length) * 100);
     setScore(finalScore);
-    setShowResult(true);
+    
+    try {
+        await addQuizAttempt({ score: finalScore, passed: finalScore >= 80 });
+        const quizTask = tasks.find(t => t.title.includes("Aptitude Quiz"));
+        if (quizTask) {
+            handleTaskCompletionChange(quizTask.id, true);
+        }
+    } catch (error) {
+        console.error("Failed to save quiz attempt:", error);
+        // Optionally, show a toast to the user
+    } finally {
+        setIsSubmitting(false);
+        setShowResult(true);
+    }
   };
   
   const handleRetake = () => {
@@ -292,6 +311,7 @@ export default function QuizPage() {
       setAnswers({});
       setScore(0);
       setShowResult(false);
+      setIsSubmitting(false);
   }
 
   const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
@@ -356,11 +376,13 @@ export default function QuizPage() {
           {currentQuestion < quizQuestions.length - 1 ? (
             <Button onClick={handleNext} disabled={!isAnswerSelected}>Next</Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={!isAnswerSelected}>Submit</Button>
+            <Button onClick={handleSubmit} disabled={!isAnswerSelected || isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSubmitting ? "Submitting..." : "Submit"}
+            </Button>
           )}
         </CardFooter>
       </Card>
     </div>
   );
 }
-
