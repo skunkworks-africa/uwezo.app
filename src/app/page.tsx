@@ -1,8 +1,32 @@
+
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { Loader2 } from "lucide-react";
 
 export default function LandingPage() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.push("/dashboard");
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="px-4 lg:px-6 h-16 flex items-center border-b">
