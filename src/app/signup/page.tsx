@@ -61,7 +61,7 @@ export default function SignupPage() {
       <Card className="mx-auto w-full max-w-sm">
         <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-                <WezoLogo className="h-12 w-12" />
+                <WezoLogo className="w-32" />
             </div>
           <CardTitle className="text-2xl">Create your Account</CardTitle>
           <CardDescription>
