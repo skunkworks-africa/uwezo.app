@@ -5,3 +5,11 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+environmentVariables:
+  NEXT_PUBLIC_FIREBASE_API_KEY: "AIzaSyDj1lusHI8516MOVS22hhe8kEWYQ9IC0Gs"
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "wezo-oz0gb.firebaseapp.com"
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: "wezo-oz0gb"
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "wezo-oz0gb.firebasestorage.app"
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "883070171885"
+  NEXT_PUBLIC_FIREBASE_APP_ID: "1:883070171885:web:f03464f9d0d529e143eae4"
+  NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: "G-GECT9V6674"

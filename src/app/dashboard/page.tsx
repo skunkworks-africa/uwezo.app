@@ -1,11 +1,12 @@
+
 "use client";
 
-import { useState, useMemo } from "react";
 import { AiAssistant } from "@/components/wezo/ai-assistant";
 import { DocumentUploader } from "@/components/wezo/document-uploader";
 import { ProgressTracker } from "@/components/wezo/progress-tracker";
 import { TaskList } from "@/components/wezo/task-list";
 import { NdaViewer } from "@/components/wezo/nda-viewer";
+import { useDashboard } from "./layout";
 
 export interface Task {
   id: number;
@@ -13,28 +14,8 @@ export interface Task {
   completed: boolean;
 }
 
-const initialTasks: Task[] = [
-  { id: 1, title: "Review and Sign NDA", completed: false },
-  { id: 2, title: "Upload CV for Skill Analysis", completed: false },
-  { id: 3, title: "Complete Profile Information", completed: false },
-  { id: 4, title: "Meet your onboarding buddy", completed: false },
-];
-
-
 export default function DashboardPage() {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-
-  const handleTaskCompletionChange = (taskId: number, completed: boolean) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, completed } : task
-      )
-    );
-  };
-
-  const completedTasks = useMemo(() => tasks.filter((task) => task.completed).length, [tasks]);
-  const totalTasks = tasks.length;
-  const progressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const { tasks, handleTaskCompletionChange, progressPercentage } = useDashboard();
   
   const handleNdaSigned = () => {
     handleTaskCompletionChange(1, true);

@@ -42,6 +42,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { useDashboard } from "../layout";
 
 const profileSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -64,6 +65,7 @@ export default function ProfilePage() {
   const { uploadFile, isUploading } = useStorage();
   const { userData, loadingUser, updateUserProfile } = useUser();
   const { toast } = useToast();
+  const { handleTaskCompletionChange } = useDashboard();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -138,6 +140,7 @@ export default function ProfilePage() {
         title: "Profile Updated",
         description: "Your information has been saved successfully.",
       });
+      handleTaskCompletionChange(3, true);
     } catch (error) {
       toast({
         variant: "destructive",
