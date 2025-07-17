@@ -61,12 +61,13 @@ export default function DashboardLayout({
       <div className="min-h-screen text-foreground">
         <Header />
         <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
                 <motion.div
+                    key={children ? (children as React.ReactElement).key : undefined}
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 15 }}
-                    transition={{ delay: 0.25 }}
+                    transition={{ duration: 0.3 }}
                 >
                     {children}
                 </motion.div>
