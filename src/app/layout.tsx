@@ -4,6 +4,7 @@
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/use-auth';
+import { Analytics } from "@vercel/analytics/react"
 
 export default function RootLayout({
   children,
@@ -30,6 +31,7 @@ export default function RootLayout({
           {children}
         </AuthProvider>
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );
