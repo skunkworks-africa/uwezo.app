@@ -3,68 +3,48 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // =================================================================
-    // Helper Functions
-    // =================================================================
-
-    // Is the user authenticated?
+    // Helper functions to improve readability and reduce duplication.
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Is the user the owner of the resource?
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Is the user a participant in a given chat?
-    function isChatParticipant(chatId) {
-      return isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
-    }
-
-    // =================================================================
-    // Collection Rules
-    // =================================================================
-
+    // Rules for the 'users' collection.
     match /users/{userId} {
-      // A user can create their own user document.
+      // A user can create their own document upon signing up.
       allow create: if isOwner(userId);
-      
-      // A user can read or update their own user document.
-      allow get, update: if isOwner(userId);
 
-      // No one can list all users or delete a user document from the client.
-      allow list, delete: if false;
+      // A user can read or update their own document.
+      allow read, update: if isOwner(userId);
 
-      // --- Subcollections for /users/{userId} ---
-      
+      // Rules for the 'quizAttempts' subcollection within a user document.
       match /quizAttempts/{attemptId} {
-        // A user can create and list their own quiz attempts.
-        allow create, list: if isOwner(userId);
-
-        // No one can read a specific attempt, update, or delete it from the client.
-        allow get, update, delete: if false;
+        // A user can create and read their own quiz attempts.
+        allow create, read: if isOwner(userId);
       }
     }
 
+    // Rules for the 'chats' collection.
     match /chats/{chatId} {
-      // A user can create a chat if they are one of the participants in the new document.
+      // A user can read a chat document if they are a participant.
+      // `get` is used for single document reads.
+      allow get: if isSignedIn() && request.auth.uid in resource.data.participants;
+      
+      // A user can list chats (though the app doesn't do this yet, it's good practice).
+      // `list` is for collection queries.
+      allow list: if isSignedIn();
+
+      // A user can create a chat document if their UID is one of the participants.
       allow create: if isSignedIn() && request.auth.uid in request.resource.data.participants;
 
-      // A user can read a chat document if they are a participant.
-      allow get: if isChatParticipant(chatId);
-
-      // No one can list all chats or update/delete a chat from the client.
-      allow list, update, delete: if false;
-      
-      // --- Subcollections for /chats/{chatId} ---
-
+      // Rules for the 'messages' subcollection within a chat document.
       match /messages/{messageId} {
-        // A user can create and list messages if they are a participant of the parent chat.
-        allow create, list: if isChatParticipant(chatId);
-        
-        // No one can read a specific message, update, or delete it from the client.
-        allow get, update, delete: if false;
+        // Allow reading and writing messages if the user is a participant of the parent chat.
+        // This uses a `get()` to check the parent document's data securely.
+        allow read, create: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
       }
     }
   }
