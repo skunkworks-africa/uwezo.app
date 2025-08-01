@@ -99,7 +99,7 @@ export function DocumentUploader({ onAnalysisComplete }: DocumentUploaderProps) 
       <CardContent>
         {userData?.cvUrl ? (
              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300">
                     <CheckCircle2 className="h-6 w-6" />
                     <div>
                         <p className="font-semibold">Your CV has been uploaded.</p>

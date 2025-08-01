@@ -19,16 +19,11 @@ export function useStorage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const uploadFile = async (
-    user: User | null,
+    user: User,
     path: string,
     file: File,
     updateUserAvatar = false
   ): Promise<string | null> => {
-    if (!user) {
-      setUploadError("User not authenticated.");
-      return null;
-    }
-
     setIsUploading(true);
     setUploadError(null);
 
