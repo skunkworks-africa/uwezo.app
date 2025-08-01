@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const URL = 'https://wezo.app';
+const URL = 'https://uwezo.app';
 
 export async function GET() {
   const pages = [

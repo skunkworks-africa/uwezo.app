@@ -173,8 +173,8 @@ const quizQuestions: QuizQuestion[] = [
   {
     section: "Digital Literacy",
     question: "Which of the following is a secure password?",
-    options: ["123456", "Password2024", "W3zo@!9#fG", "wezo2025"],
-    correctAnswer: "W3zo@!9#fG",
+    options: ["123456", "Password2024", "Uwezo@!9#fG", "uwezo2025"],
+    correctAnswer: "Uwezo@!9#fG",
   },
   {
     section: "Digital Literacy",
@@ -242,7 +242,7 @@ const quizQuestions: QuizQuestion[] = [
   // Cognitive Adaptability
   {
     section: "Cognitive Adaptability",
-    question: "You are given an unfamiliar tool during a Wezo workshop. What's your approach?",
+    question: "You are given an unfamiliar tool during a Uwezo workshop. What's your approach?",
     options: ["Wait for help", "Watch a video tutorial", "Try it yourself and take notes", "Postpone the task"],
     correctAnswer: "Try it yourself and take notes",
   },
@@ -350,7 +350,7 @@ export default function QuizPage() {
     <div className="flex items-center justify-center py-12">
       <Card className="w-full max-w-3xl">
         <CardHeader>
-          <CardTitle>Wezo Global Aptitude & Digital Readiness Assessment</CardTitle>
+          <CardTitle>Uwezo Global Aptitude & Digital Readiness Assessment</CardTitle>
           <CardDescription>
             Section: <span className="font-semibold text-primary">{question.section}</span> | 
             Question {currentQuestion + 1} of {quizQuestions.length}

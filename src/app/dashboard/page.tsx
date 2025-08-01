@@ -1,15 +1,15 @@
 
 "use client";
 
-import { AiAssistant } from "@/components/wezo/ai-assistant";
-import { DocumentUploader } from "@/components/wezo/document-uploader";
-import { ProgressTracker } from "@/components/wezo/progress-tracker";
-import { TaskList } from "@/components/wezo/task-list";
-import { NdaViewer } from "@/components/wezo/nda-viewer";
+import { AiAssistant } from "@/components/uwezo/ai-assistant";
+import { DocumentUploader } from "@/components/uwezo/document-uploader";
+import { ProgressTracker } from "@/components/uwezo/progress-tracker";
+import { TaskList } from "@/components/uwezo/task-list";
+import { NdaViewer } from "@/components/uwezo/nda-viewer";
 import { useDashboard } from "./layout";
-import { QuizHistory } from "@/components/wezo/quiz-history";
-import { OnboardingChat } from "@/components/wezo/onboarding-chat";
-import { VideoIntroduction } from "@/components/wezo/video-introduction";
+import { QuizHistory } from "@/components/uwezo/quiz-history";
+import { OnboardingChat } from "@/components/uwezo/onboarding-chat";
+import { VideoIntroduction } from "@/components/uwezo/video-introduction";
 
 export interface Task {
   id: number;
@@ -41,7 +41,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-        <h1 className="text-4xl font-bold tracking-tight text-foreground">Welcome to Wezo</h1>
+        <h1 className="text-4xl font-bold tracking-tight text-foreground">Welcome to Uwezo</h1>
         <ProgressTracker progress={progressPercentage} />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">

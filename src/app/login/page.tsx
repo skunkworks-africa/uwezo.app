@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { WezoLogo } from "@/components/wezo/logo";
+import { UwezoLogo } from "@/components/uwezo/logo";
 import { Loader2 } from "lucide-react";
 
 // Google Icon as an inline SVG component
@@ -63,9 +63,9 @@ export default function LoginPage() {
       <Card className="mx-auto w-full max-w-sm">
         <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-                <WezoLogo className="w-32" />
+                <UwezoLogo className="w-32" />
             </div>
-          <CardTitle className="text-2xl">Welcome to Wezo</CardTitle>
+          <CardTitle className="text-2xl">Welcome to Uwezo</CardTitle>
           <CardDescription>
             Sign in to continue to your onboarding dashboard.
           </CardDescription>

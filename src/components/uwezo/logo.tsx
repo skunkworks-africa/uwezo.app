@@ -2,11 +2,11 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-export function WezoLogo({ className }: { className?: string }) {
+export function UwezoLogo({ className }: { className?: string }) {
   return (
     <Image
-      src="https://raw.githubusercontent.com/burnt-exe/wezo/main/wezo-long-white.png"
-      alt="Wezo Logo"
+      src="https://raw.githubusercontent.com/burnt-exe/uwezo/main/uwezo-long-white.png"
+      alt="Uwezo Logo"
       width={140}
       height={40}
       priority

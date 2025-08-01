@@ -24,7 +24,7 @@ type NdaFormValues = z.infer<typeof NdaSchema>;
 const ndaContentTemplate = `MUTUAL NON-DISCLOSURE AND CONFIDENTIALITY AGREEMENT
 
 This agreement is entered on {DATE} by and between:
-Wezo Inc., a company duly incorporated, with its principal place of business at 123 Innovation Drive, Tech City, including its successors and assigns (the “Company”), and you, the user (the “Recipient”).
+Uwezo Inc., a company duly incorporated, with its principal place of business at 123 Innovation Drive, Tech City, including its successors and assigns (the “Company”), and you, the user (the “Recipient”).
 
 The parties possess competitively valuable Confidential Information (as hereinafter defined) regarding their past, current and future services and products, research and development, customers, business plans, software, listings, holdings, alliances, investments, transactions, intellectual property and rights associated thereto and general business operations. The parties wish to enter into a mutually beneficial relationship, and as such, wish to share their Confidential Information with the other party, including its authorized employees and agents. For the purposes of this Agreement, the party that discloses Confidential Information to the other party shall be referred to as the “Disclosing Party” and the party that receives such Confidential Information from the other party shall be referred to as the “Recipient”.
 

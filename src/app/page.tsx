@@ -32,8 +32,8 @@ export default function LandingPage() {
       <header className="px-4 lg:px-6 h-16 flex items-center border-b">
         <Link href="/" className="flex items-center justify-center gap-2">
             <Image
-                src="https://raw.githubusercontent.com/burnt-exe/wezo/refs/heads/main/wezo-long.png"
-                alt="Wezo Logo"
+                src="https://raw.githubusercontent.com/burnt-exe/uwezo/main/uwezo-long.png"
+                alt="Uwezo Logo"
                 width={120}
                 height={30}
                 priority
@@ -51,8 +51,8 @@ export default function LandingPage() {
       <main className="flex-1 flex items-center justify-center p-4">
         <Link href="/login" aria-label="Go to login page">
             <Image
-                src="https://raw.githubusercontent.com/burnt-exe/wezo/refs/heads/main/wezo-hero.png"
-                alt="Wezo Hero"
+                src="https://raw.githubusercontent.com/burnt-exe/uwezo/main/uwezo-hero.png"
+                alt="Uwezo Hero"
                 width={256}
                 height={256}
                 className="transition-transform duration-300 ease-in-out hover:scale-105"
