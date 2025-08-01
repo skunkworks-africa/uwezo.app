@@ -1,33 +1,31 @@
-rules_version = '2';
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        // Allow users to read and write their own document
+        ".read": "request.auth.uid == $uid",
+        ".write": "request.auth.uid == $uid",
 
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Users can read and write to their own user document.
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-
-      // Users can read and write to their own quizAttempts sub-collection.
-      match /quizAttempts/{attemptId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        // Allow users to manage their own subcollections
+        "quizAttempts": {
+          ".read": "request.auth.uid == $uid",
+          ".write": "request.auth.uid == $uid"
+        }
       }
-    }
+    },
+    "chats": {
+      "$chatId": {
+        // Allow read/write access to chat if the user is a participant
+        ".read": "request.auth.uid in resource.data.participants",
+        ".write": "request.auth.uid in resource.data.participants",
 
-    // Rules for the 'chats' collection
-    match /chats/{chatId} {
-      // Allow a user to read a chat document if they are a participant.
-      allow get: if request.auth != null && request.auth.uid in resource.data.participants;
-      
-      // Allow a user to list/query chats if their UID is in the 'participants' array.
-      // This is crucial for finding an existing chat.
-      allow list: if request.auth != null && request.auth.uid in request.query.filters[0].value;
-      
-      // Allow authenticated users to create a new chat.
-      // We can add further validation, e.g., ensuring the creating user is a participant.
-      allow create: if request.auth != null;
-
-      // Allow participants to read and write messages in a chat.
-      match /messages/{messageId} {
-        allow read, write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        "messages": {
+          // Allow read access to messages if the user is a participant
+          ".read": "get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid])",
+          
+          // Allow users to create messages if they are a participant
+          ".create": "get(/databases/$(database)/documents/chats/$(chatId)).data.participants.hasAny([request.auth.uid]) && request.resource.data.senderId == request.auth.uid"
+        }
       }
     }
   }

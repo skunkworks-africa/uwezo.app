@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useUser, ONBOARDING_BUDDY_UID, ONBOARDING_BUDDY_NAME, type ChatMessage } from "@/hooks/use-user";
 import { Button } from "@/components/ui/button";
@@ -19,18 +19,28 @@ export function BuddyChat() {
   const [chatId, setChatId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const messages = useChatMessages(chatId);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const initChat = async () => {
+  const initChat = useCallback(async () => {
       if (user) {
-        const id = await getOrCreateChat();
-        setChatId(id);
+        try {
+            const id = await getOrCreateChat();
+            setChatId(id);
+        } catch (error) {
+            console.error("Failed to initialize chat:", error);
+        } finally {
+            setIsInitializing(false);
+        }
+      } else {
+        setIsInitializing(false);
       }
-    };
+  }, [user, getOrCreateChat]);
+
+  useEffect(() => {
     initChat();
-  }, [user]);
+  }, [initChat]);
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
@@ -74,13 +84,13 @@ export function BuddyChat() {
       <CardContent className="flex-grow flex flex-col gap-4 overflow-hidden">
         <ScrollArea className="flex-grow pr-4 -mr-4" ref={scrollAreaRef}>
           <div className="space-y-4 pr-4">
-            {messages.length === 0 && !chatId && (
+            {isInitializing && (
                  <div className="text-center text-sm text-muted-foreground py-8 flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>Initializing chat...</span>
                 </div>
             )}
-            {messages.length === 0 && chatId && (
+            {!isInitializing && messages.length === 0 && (
                  <div className="text-center text-sm text-muted-foreground py-8">
                     No messages yet. Say hello!
                 </div>
@@ -124,11 +134,11 @@ export function BuddyChat() {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
-            disabled={isSending || !chatId}
+            disabled={isSending || !chatId || isInitializing}
             className="flex-grow"
             autoComplete="off"
           />
-          <Button type="submit" disabled={!chatId || isSending || !newMessage.trim()} size="icon" aria-label="Send message">
+          <Button type="submit" disabled={!chatId || isSending || !newMessage.trim() || isInitializing} size="icon" aria-label="Send message">
             {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </form>
