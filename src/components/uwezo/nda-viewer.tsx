@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,69 +11,58 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PenSquare, CheckCircle2 } from "lucide-react";
+import { contractTemplates, engagementTypes, type EngagementType } from "@/lib/contract-templates";
 
-const NdaSchema = z.object({
+const ContractSchema = z.object({
+  engagementType: z.string().min(1, { message: "Please select a type of engagement." }),
   fullName: z.string().min(3, { message: "Full name must be at least 3 characters." }),
   agree: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms and conditions.",
   }),
 });
 
-type NdaFormValues = z.infer<typeof NdaSchema>;
+type ContractFormValues = z.infer<typeof ContractSchema>;
 
-const ndaContentTemplate = `MUTUAL NON-DISCLOSURE AND CONFIDENTIALITY AGREEMENT
-
-This agreement is entered on {DATE} by and between:
-Uwezo Inc., a company duly incorporated, with its principal place of business at 123 Innovation Drive, Tech City, including its successors and assigns (the “Company”), and you, the user (the “Recipient”).
-
-The parties possess competitively valuable Confidential Information (as hereinafter defined) regarding their past, current and future services and products, research and development, customers, business plans, software, listings, holdings, alliances, investments, transactions, intellectual property and rights associated thereto and general business operations. The parties wish to enter into a mutually beneficial relationship, and as such, wish to share their Confidential Information with the other party, including its authorized employees and agents. For the purposes of this Agreement, the party that discloses Confidential Information to the other party shall be referred to as the “Disclosing Party” and the party that receives such Confidential Information from the other party shall be referred to as the “Recipient”.
-
-The Recipient may be given access to the Disclosing Party’s Confidential Information or to create new Confidential Information for the Disclosing Party.
-
-In view of the above, the parties agree as follows:
-
-1. Confidential Information
-"Confidential Information" includes any information:
-▪ specifically indicated by the Disclosing Party, either verbally or in writing, as confidential;
-▪ under the circumstances of the disclosure, that are to be treated as confidential; or
-▪ the Recipient creates or produces while performing its obligations under this Agreement, regardless of the media that contains the information.
-
-Confidential Information does not include information, which:
-▪ is generally available to the public at the time of its disclosure to the Recipient;
-▪ becomes known to the public through no fault/action of the Recipient in violation of the terms herein;
-▪ is legally known to the Recipient at the time of disclosure by the Disclosing Party;
-▪ is furnished by the Disclosing Party to third parties without restriction;
-`;
-
-export function NdaViewer({ onSigned }: { onSigned: () => void }) {
+export function ContractViewer({ onSigned }: { onSigned: () => void }) {
   const [isSigned, setIsSigned] = useState(false);
-  const [signature, setSignature] = useState({ name: "", date: "" });
+  const [signature, setSignature] = useState({ name: "", date: "", type: "" });
   const [date, setDate] = useState<string | null>(null);
 
   useEffect(() => {
     // This runs only on the client, after hydration
     setDate(new Date().toLocaleDateString());
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, []);
 
-  const form = useForm<NdaFormValues>({
-    resolver: zodResolver(NdaSchema),
+  const form = useForm<ContractFormValues>({
+    resolver: zodResolver(ContractSchema),
     defaultValues: {
+      engagementType: "",
       fullName: "",
       agree: false,
     },
   });
 
-  const onSubmit: SubmitHandler<NdaFormValues> = (data) => {
+  const selectedEngagementType = form.watch("engagementType") as EngagementType | "";
+
+  const onSubmit: SubmitHandler<ContractFormValues> = (data) => {
     setSignature({
       name: data.fullName,
       date: new Date().toLocaleString(),
+      type: data.engagementType,
     });
     setIsSigned(true);
     onSigned();
+    // Here you would typically save the signed contract to Firestore
+    // e.g., saveContract({ ...data, userId: user.uid, signedAt: serverTimestamp() });
   };
   
-  const finalNdaContent = date ? ndaContentTemplate.replace('{DATE}', date) : 'Loading agreement...';
+  const getContractContent = () => {
+    if (!date) return "Loading...";
+    const template = selectedEngagementType ? contractTemplates[selectedEngagementType] : "Please select a contract type to view the agreement.";
+    return template.replace(/{DATE}/g, date);
+  };
 
   if (isSigned) {
     return (
@@ -80,10 +70,10 @@ export function NdaViewer({ onSigned }: { onSigned: () => void }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-6 w-6 text-green-500" />
-            NDA Signed
+            Contract Signed
           </CardTitle>
           <CardDescription>
-            Thank you. The Non-Disclosure Agreement was signed successfully.
+            Thank you. The {signature.type} agreement was signed successfully.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -99,18 +89,41 @@ export function NdaViewer({ onSigned }: { onSigned: () => void }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Non-Disclosure Agreement</CardTitle>
+        <CardTitle>Sign Your Employment Contract</CardTitle>
         <CardDescription>
-          Please read the agreement carefully and sign below.
+          Please select your engagement type, read the agreement carefully, and sign below.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-64 w-full rounded-md border p-4 mb-6">
-          <pre className="whitespace-pre-wrap text-sm font-sans">{finalNdaContent}</pre>
-        </ScrollArea>
-        
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="engagementType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Type of Engagement</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a contract type..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {engagementTypes.map((type) => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <ScrollArea className="h-64 w-full rounded-md border p-4">
+              <pre className="whitespace-pre-wrap text-sm font-sans">{getContractContent()}</pre>
+            </ScrollArea>
+            
             <FormField
               control={form.control}
               name="fullName"
@@ -118,7 +131,7 @@ export function NdaViewer({ onSigned }: { onSigned: () => void }) {
                 <FormItem>
                   <FormLabel htmlFor="fullName">Full Name</FormLabel>
                   <FormControl>
-                    <Input id="fullName" placeholder="Enter your full legal name" {...field} />
+                    <Input id="fullName" placeholder="Enter your full legal name" {...field} disabled={!selectedEngagementType} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -134,11 +147,12 @@ export function NdaViewer({ onSigned }: { onSigned: () => void }) {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={!selectedEngagementType}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      I have read, understood, and agree to the terms of this Non-Disclosure Agreement.
+                    <FormLabel className={!selectedEngagementType ? "text-muted-foreground" : ""}>
+                      I have read, understood, and agree to the terms of this agreement.
                     </FormLabel>
                      <FormMessage />
                   </div>
@@ -146,7 +160,7 @@ export function NdaViewer({ onSigned }: { onSigned: () => void }) {
               )}
             />
 
-            <Button type="submit">
+            <Button type="submit" disabled={!selectedEngagementType || !form.formState.isValid}>
               <PenSquare className="mr-2 h-4 w-4" />
               Sign Agreement
             </Button>
