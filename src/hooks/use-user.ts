@@ -24,6 +24,8 @@ export interface UserData {
   kickresume?: string;
   whatsapp?: string;
   cvUrl?: string;
+  transcriptUrl?: string;
+  portfolioUrl?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -132,7 +134,7 @@ export function useUser() {
     await updateDoc(userDocRef, dataToUpdate);
     
     // Optimistically update local state
-    setUserData(prev => prev ? { ...prev, ...dataToUpdate } : null);
+    setUserData(prev => prev ? { ...prev, ...dataToUpdate } as UserData : null);
   };
   
   const addQuizAttempt = async (attempt: { score: number, passed: boolean }) => {

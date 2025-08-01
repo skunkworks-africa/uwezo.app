@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -59,13 +59,16 @@ const profileSchema = z.object({
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
+type DocumentType = 'transcript' | 'portfolio';
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { uploadFile, isUploading } = useStorage();
+  const { uploadFile, isUploading: isUploadingAvatar } = useStorage();
   const { userData, loadingUser, updateUserProfile } = useUser();
   const { toast } = useToast();
   const { handleTaskCompletionChange } = useDashboard();
+  const [isUploadingDoc, setIsUploadingDoc] = useState<DocumentType | null>(null);
+
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -133,6 +136,35 @@ export default function ProfilePage() {
     }
   };
 
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>, docType: DocumentType) => {
+    if (!e.target.files || e.target.files.length === 0 || !user) return;
+
+    const file = e.target.files[0];
+    const filePath = `documents/${user.uid}/${docType}/${file.name}`;
+    
+    setIsUploadingDoc(docType);
+
+    try {
+        const fileURL = await uploadFile(filePath, file);
+        if (fileURL) {
+            const fieldToUpdate = docType === 'transcript' ? { transcriptUrl: fileURL } : { portfolioUrl: fileURL };
+            await updateUserProfile(fieldToUpdate);
+            toast({
+                title: "Upload Successful",
+                description: `Your ${docType} has been saved.`,
+            });
+        }
+    } catch (error) {
+        toast({
+            variant: "destructive",
+            title: "Upload Failed",
+            description: `There was a problem uploading your ${docType}.`,
+        });
+    } finally {
+        setIsUploadingDoc(null);
+    }
+  };
+
   const onSave: SubmitHandler<ProfileFormValues> = async (data) => {
     try {
       await updateUserProfile(data);
@@ -140,7 +172,7 @@ export default function ProfilePage() {
         title: "Profile Updated",
         description: "Your information has been saved successfully.",
       });
-      handleTaskCompletionChange(3, true);
+      handleTaskCompletionChange(4, true);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -153,6 +185,8 @@ export default function ProfilePage() {
    if (loadingUser) {
     return <ProfileSkeleton />;
   }
+
+  const isUploading = isUploadingAvatar || !!isUploadingDoc;
 
   return (
     <form onSubmit={handleSubmit(onSave)} className="space-y-8">
@@ -261,18 +295,18 @@ export default function ProfilePage() {
                   accept="image/*"
                   onChange={handleAvatarUpload}
                   className="hidden"
-                  disabled={isUploading}
+                  disabled={isUploadingAvatar}
                 />
                 <Label
                   htmlFor="picture"
-                  className={cn("inline-flex items-center justify-center h-10 px-4 py-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 w-full cursor-pointer", isUploading && "opacity-50 cursor-not-allowed")}
+                  className={cn("inline-flex items-center justify-center h-10 px-4 py-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 w-full cursor-pointer", isUploadingAvatar && "opacity-50 cursor-not-allowed")}
                 >
-                  {isUploading ? (
+                  {isUploadingAvatar ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
                     <Camera className="mr-2 h-4 w-4" />
                   )}
-                  {isUploading ? "Uploading..." : "Choose Image"}
+                  {isUploadingAvatar ? "Uploading..." : "Choose Image"}
                 </Label>
               </CardContent>
             </Card>
@@ -410,13 +444,16 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-center w-full">
                   <Label
                     htmlFor="transcript-upload"
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted"
+                    className={cn("flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted", isUploading && "opacity-50 cursor-not-allowed")}
                   >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <UploadCloud className="w-10 h-10 mb-3 text-muted-foreground" />
+                      {isUploadingDoc === 'transcript' ? (
+                        <Loader2 className="w-10 h-10 mb-3 text-muted-foreground animate-spin" />
+                      ) : (
+                        <UploadCloud className="w-10 h-10 mb-3 text-muted-foreground" />
+                      )}
                       <p className="mb-2 text-sm text-muted-foreground">
-                        <span className="font-semibold">Click to upload</span>{" "}
-                        or drag and drop
+                        {isUploadingDoc === 'transcript' ? 'Uploading...' : <><span className="font-semibold">Click to upload</span> or drag and drop</>}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         PDF, DOCX, or PNG (MAX. 10MB)
@@ -426,22 +463,28 @@ export default function ProfilePage() {
                       id="transcript-upload"
                       type="file"
                       className="hidden"
+                      onChange={(e) => handleDocumentUpload(e, 'transcript')}
+                      disabled={isUploading}
                     />
                   </Label>
                 </div>
+                 {userData?.transcriptUrl && <p className="text-sm text-muted-foreground mt-2">Current file: <a href={userData.transcriptUrl} target="_blank" rel="noopener noreferrer" className="underline">View Transcript</a></p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="portfolio-upload">Work Portfolio</Label>
                 <div className="flex items-center justify-center w-full">
                   <Label
                     htmlFor="portfolio-file-upload"
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted"
+                    className={cn("flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted", isUploading && "opacity-50 cursor-not-allowed")}
                   >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <UploadCloud className="w-10 h-10 mb-3 text-muted-foreground" />
+                       {isUploadingDoc === 'portfolio' ? (
+                        <Loader2 className="w-10 h-10 mb-3 text-muted-foreground animate-spin" />
+                      ) : (
+                        <UploadCloud className="w-10 h-10 mb-3 text-muted-foreground" />
+                      )}
                       <p className="mb-2 text-sm text-muted-foreground">
-                        <span className="font-semibold">Click to upload</span>{" "}
-                        or drag and drop
+                        {isUploadingDoc === 'portfolio' ? 'Uploading...' : <><span className="font-semibold">Click to upload</span> or drag and drop</>}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         ZIP, PDF or other project files (MAX. 50MB)
@@ -451,9 +494,12 @@ export default function ProfilePage() {
                       id="portfolio-file-upload"
                       type="file"
                       className="hidden"
+                      onChange={(e) => handleDocumentUpload(e, 'portfolio')}
+                      disabled={isUploading}
                     />
                   </Label>
                 </div>
+                 {userData?.portfolioUrl && <p className="text-sm text-muted-foreground mt-2">Current file: <a href={userData.portfolioUrl} target="_blank" rel="noopener noreferrer" className="underline">View Portfolio</a></p>}
               </div>
             </CardContent>
           </Card>
