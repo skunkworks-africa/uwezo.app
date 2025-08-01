@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, addDoc, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, addDoc, getDocs, query, orderBy, limit, where, onSnapshot, Unsubscribe } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
 import { useAuth } from "./use-auth";
 import { db } from "@/lib/firebase";
@@ -34,6 +34,16 @@ export interface QuizAttempt {
     passed: boolean;
     timestamp: any;
 }
+
+export interface ChatMessage {
+    id: string;
+    text: string;
+    senderId: string;
+    timestamp: any;
+}
+
+export const ONBOARDING_BUDDY_UID = "onboarding-buddy-uid-placeholder";
+export const ONBOARDING_BUDDY_NAME = "Onboarding Buddy";
 
 export function useUser() {
   const { user } = useAuth();
@@ -139,5 +149,58 @@ export function useUser() {
       await fetchUserData();
   }
 
-  return { userData, quizAttempts, loadingUser, updateUserProfile, addQuizAttempt };
+  const getOrCreateChat = async (): Promise<string> => {
+    if (!user) throw new Error("User not authenticated");
+
+    const participants = [user.uid, ONBOARDING_BUDDY_UID].sort();
+    const chatsRef = collection(db, "chats");
+    const q = query(chatsRef, where("participants", "==", participants));
+    const chatSnapshot = await getDocs(q);
+
+    if (chatSnapshot.empty) {
+        const newChatDoc = await addDoc(chatsRef, {
+            participants: participants,
+            createdAt: serverTimestamp(),
+        });
+        return newChatDoc.id;
+    } else {
+        return chatSnapshot.docs[0].id;
+    }
+  };
+
+  const sendMessage = async (chatId: string, text: string) => {
+    if (!user) throw new Error("User not authenticated");
+
+    const messagesRef = collection(db, "chats", chatId, "messages");
+    await addDoc(messagesRef, {
+        text,
+        senderId: user.uid,
+        timestamp: serverTimestamp(),
+    });
+  };
+
+  const useChatMessages = (chatId: string | null) => {
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+    useEffect(() => {
+        if (!chatId) return;
+
+        const messagesRef = collection(db, "chats", chatId, "messages");
+        const q = query(messagesRef, orderBy("timestamp", "asc"));
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const msgs = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            } as ChatMessage));
+            setMessages(msgs);
+        });
+
+        return () => unsubscribe();
+    }, [chatId]);
+
+    return messages;
+  };
+
+  return { userData, quizAttempts, loadingUser, updateUserProfile, addQuizAttempt, getOrCreateChat, sendMessage, useChatMessages };
 }

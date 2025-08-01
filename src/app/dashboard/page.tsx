@@ -8,8 +8,8 @@ import { TaskList } from "@/components/uwezo/task-list";
 import { NdaViewer } from "@/components/uwezo/nda-viewer";
 import { useDashboard } from "./layout";
 import { QuizHistory } from "@/components/uwezo/quiz-history";
-import { OnboardingChat } from "@/components/uwezo/onboarding-chat";
 import { VideoIntroduction } from "@/components/uwezo/video-introduction";
+import { BuddyChat } from "@/components/uwezo/buddy-chat";
 
 export interface Task {
   id: number;
@@ -55,7 +55,7 @@ export default function DashboardPage() {
             
             <div className="lg:col-span-1 space-y-8 lg:sticky lg:top-24">
                 <AiAssistant />
-                <OnboardingChat />
+                <BuddyChat />
             </div>
         </div>
     </div>
