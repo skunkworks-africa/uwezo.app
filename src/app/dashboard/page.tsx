@@ -6,6 +6,7 @@ import { DocumentUploader } from "@/components/uwezo/document-uploader";
 import { ProgressTracker } from "@/components/uwezo/progress-tracker";
 import { TaskList } from "@/components/uwezo/task-list";
 import { ContractViewer } from "@/components/uwezo/contract-viewer";
+import { NdaViewer } from "@/components/uwezo/nda-viewer";
 import { useDashboard } from "./layout";
 import { QuizHistory } from "@/components/uwezo/quiz-history";
 import { VideoIntroduction } from "@/components/uwezo/video-introduction";
@@ -20,16 +21,20 @@ export interface Task {
 export default function DashboardPage() {
   const { tasks, handleTaskCompletionChange, progressPercentage } = useDashboard();
   
-  const handleContractSigned = () => {
+  const handleNdaSigned = () => {
     handleTaskCompletionChange(1, true);
   };
   
-  const handleCvAnalyzed = () => {
+  const handleContractSigned = () => {
     handleTaskCompletionChange(2, true);
+  };
+  
+  const handleCvAnalyzed = () => {
+    handleTaskCompletionChange(3, true);
   }
 
   const handleVideoRecorded = () => {
-    handleTaskCompletionChange(5, true);
+    handleTaskCompletionChange(6, true);
   }
 
   const handleQuizCompleted = () => {
@@ -48,6 +53,7 @@ export default function DashboardPage() {
             <div className="lg:col-span-2 space-y-8">
                 <TaskList tasks={tasks} onTaskCompletionChange={handleTaskCompletionChange} />
                 <QuizHistory />
+                <NdaViewer onSigned={handleNdaSigned} />
                 <ContractViewer onSigned={handleContractSigned} />
                 <VideoIntroduction onRecordingComplete={handleVideoRecorded} />
                 <DocumentUploader onAnalysisComplete={handleCvAnalyzed} />

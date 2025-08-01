@@ -8,11 +8,12 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const initialTasks: Task[] = [
   { id: 1, title: "Review and Sign NDA", completed: false },
-  { id: 2, title: "Upload CV for Skill Analysis", completed: false },
-  { id: 3, title: "Complete Profile Information", completed: false },
-  { id: 4, title: "Take the Aptitude Quiz", completed: false },
-  { id: 5, title: "Record a Video Introduction", completed: false },
-  { id: 6, title: "Meet your onboarding buddy", completed: false },
+  { id: 2, title: "Sign Employment Contract", completed: false },
+  { id: 3, title: "Upload CV for Skill Analysis", completed: false },
+  { id: 4, title: "Complete Profile Information", completed: false },
+  { id: 5, title: "Take the Aptitude Quiz", completed: false },
+  { id: 6, title: "Record a Video Introduction", completed: false },
+  { id: 7, title: "Meet your onboarding buddy", completed: false },
 ];
 
 interface DashboardContextType {
