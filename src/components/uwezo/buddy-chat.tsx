@@ -74,7 +74,13 @@ export function BuddyChat() {
       <CardContent className="flex-grow flex flex-col gap-4 overflow-hidden">
         <ScrollArea className="flex-grow pr-4 -mr-4" ref={scrollAreaRef}>
           <div className="space-y-4 pr-4">
-            {messages.length === 0 && (
+            {messages.length === 0 && !chatId && (
+                 <div className="text-center text-sm text-muted-foreground py-8 flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Initializing chat...</span>
+                </div>
+            )}
+            {messages.length === 0 && chatId && (
                  <div className="text-center text-sm text-muted-foreground py-8">
                     No messages yet. Say hello!
                 </div>
@@ -118,7 +124,7 @@ export function BuddyChat() {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
-            disabled={!chatId || isSending}
+            disabled={isSending}
             className="flex-grow"
             autoComplete="off"
           />
