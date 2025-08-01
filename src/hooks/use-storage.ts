@@ -8,25 +8,25 @@ import {
   getDownloadURL,
   deleteObject,
 } from "firebase/storage";
+import type { User } from "firebase/auth";
 import { updateProfile } from "firebase/auth";
 import { storage } from "@/lib/firebase";
-import { useAuth } from "./use-auth";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export function useStorage() {
-  const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const uploadFile = async (
+    user: User | null,
     path: string,
     file: File,
     updateUserAvatar = false
   ): Promise<string | null> => {
     if (!user) {
-        setUploadError("User not authenticated.");
-        return null;
+      setUploadError("User not authenticated.");
+      return null;
     }
 
     setIsUploading(true);
@@ -66,5 +66,3 @@ export function useStorage() {
 
   return { isUploading, uploadError, uploadFile, deleteFile };
 }
-
-    

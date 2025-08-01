@@ -63,11 +63,12 @@ type DocumentType = 'transcript' | 'portfolio';
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { uploadFile, isUploading: isUploadingAvatar } = useStorage();
+  const { uploadFile, isUploading: isUploadingStorage } = useStorage();
   const { userData, loadingUser, updateUserProfile } = useUser();
   const { toast } = useToast();
   const { handleTaskCompletionChange } = useDashboard();
   const [isUploadingDoc, setIsUploadingDoc] = useState<DocumentType | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
 
   const form = useForm<ProfileFormValues>({
@@ -118,9 +119,10 @@ export default function ProfilePage() {
 
     const file = e.target.files[0];
     const filePath = `avatars/${user.uid}/${file.name}`;
-
+    
+    setIsUploadingAvatar(true);
     try {
-      const fileURL = await uploadFile(filePath, file, true);
+      const fileURL = await uploadFile(user, filePath, file, true);
       if (fileURL) {
         toast({
           title: "Success",
@@ -133,6 +135,8 @@ export default function ProfilePage() {
         title: "Upload Failed",
         description: "There was a problem uploading your picture.",
       });
+    } finally {
+        setIsUploadingAvatar(false);
     }
   };
 
@@ -145,7 +149,7 @@ export default function ProfilePage() {
     setIsUploadingDoc(docType);
 
     try {
-        const fileURL = await uploadFile(filePath, file);
+        const fileURL = await uploadFile(user, filePath, file);
         if (fileURL) {
             const fieldToUpdate = docType === 'transcript' ? { transcriptUrl: fileURL } : { portfolioUrl: fileURL };
             await updateUserProfile(fieldToUpdate);

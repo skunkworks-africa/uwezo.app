@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { extractSkills, type ExtractSkillsOutput } from "@/ai/flows/cv-skill-extractor";
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,7 @@ export function DocumentUploader({ onAnalysisComplete }: DocumentUploaderProps) 
 
     try {
       // 1. Upload file to storage
-      const downloadURL = await uploadFile(filePath, file);
+      const downloadURL = await uploadFile(user, filePath, file);
 
       if (!downloadURL) {
         throw new Error("File upload failed and did not return a URL.");
