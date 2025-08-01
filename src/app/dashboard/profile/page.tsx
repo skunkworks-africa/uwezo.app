@@ -380,13 +380,13 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="whatsapp">WhatsApp Chat</Label>
+                <Label htmlFor="whatsapp">WhatsApp</Label>
                 <div className="relative">
                   <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="whatsapp"
                     {...register("whatsapp")}
-                    placeholder="Enter your WhatsApp number"
+                    placeholder="e.g. +1234567890"
                     className="pl-10"
                   />
                 </div>
