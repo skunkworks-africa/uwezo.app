@@ -10,6 +10,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bot, Loader2, Send, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { rtdb } from "@/lib/firebase";
+import { ref, onValue, push, serverTimestamp } from "firebase/database";
 
 interface Message {
   role: "user" | "assistant";
@@ -17,6 +20,7 @@ interface Message {
 }
 
 export function AiAssistant() {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,15 +31,38 @@ export function AiAssistant() {
   };
 
   useEffect(() => {
+    if (!user) return;
+    
+    const sessionRef = ref(rtdb, `sessions/${user.uid}/promptHistory`);
+    const unsubscribe = onValue(sessionRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            const loadedMessages = Object.values(data) as Message[];
+            setMessages(loadedMessages);
+        } else {
+            setMessages([]);
+        }
+    });
+
+    return () => unsubscribe();
+
+  }, [user]);
+
+
+  useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !user) return;
 
     const userMessage: Message = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    const sessionRef = ref(rtdb, `sessions/${user.uid}/promptHistory`);
+    
+    // Push user message to RTDB
+    push(sessionRef, userMessage);
+    
     const questionToAsk = input;
     setInput("");
     setIsLoading(true);
@@ -43,13 +70,17 @@ export function AiAssistant() {
     try {
       const result: AiAssistantOutput = await answerQuestion({ question: questionToAsk });
       const assistantMessage: Message = { role: "assistant", content: result.answer };
-      setMessages((prev) => [...prev, assistantMessage]);
+      
+      // Push assistant message to RTDB
+      push(sessionRef, assistantMessage);
+
     } catch (error) {
       const errorMessage: Message = {
         role: "assistant",
         content: "Sorry, I encountered an error. Please try again.",
       };
-      setMessages((prev) => [...prev, errorMessage]);
+       // Push error message to RTDB
+      push(sessionRef, errorMessage);
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -61,7 +92,7 @@ export function AiAssistant() {
       <CardHeader>
         <CardTitle>AI Onboarding Assistant</CardTitle>
         <CardDescription>
-          Ask any question about the onboarding process.
+          Ask any question about the onboarding process. Your chat is saved.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow flex flex-col gap-4 overflow-hidden">
@@ -121,11 +152,11 @@ export function AiAssistant() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="e.g., What is the dress code?"
-            disabled={isLoading}
+            disabled={isLoading || !user}
             className="flex-grow"
             autoComplete="off"
           />
-          <Button type="submit" disabled={isLoading || !input.trim()} size="icon" aria-label="Send message">
+          <Button type="submit" disabled={isLoading || !input.trim() || !user} size="icon" aria-label="Send message">
             <Send className="h-4 w-4" />
           </Button>
         </form>
