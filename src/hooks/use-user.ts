@@ -149,7 +149,7 @@ export function useUser() {
       await fetchUserData();
   }
 
-  const getOrCreateChat = async (): Promise<string> => {
+  const getOrCreateChat = useCallback(async (): Promise<string> => {
     if (!user) throw new Error("User not authenticated");
 
     const participants = [user.uid, ONBOARDING_BUDDY_UID].sort();
@@ -166,7 +166,7 @@ export function useUser() {
     } else {
         return chatSnapshot.docs[0].id;
     }
-  };
+  }, [user]);
 
   const sendMessage = async (chatId: string, text: string) => {
     if (!user) throw new Error("User not authenticated");
