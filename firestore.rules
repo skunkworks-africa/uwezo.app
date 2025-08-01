@@ -2,8 +2,8 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper functions to improve readability and reduce duplication.
+    
+    // Helper functions to make rules more readable
     function isSignedIn() {
       return request.auth != null;
     }
@@ -12,38 +12,36 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Rules for the 'users' collection.
+    // User Profile Rules
     match /users/{userId} {
-      // A user can create their own document upon signing up.
+      // A user can read or update their own profile.
+      allow read, update: if isOwner(userId);
+      // A user can create their own profile document.
       allow create: if isOwner(userId);
 
-      // A user can read or update their own document.
-      allow read, update: if isOwner(userId);
-
-      // Rules for the 'quizAttempts' subcollection within a user document.
+      // Quiz Attempts Subcollection
       match /quizAttempts/{attemptId} {
         // A user can create and read their own quiz attempts.
-        allow create, read: if isOwner(userId);
+        allow read, create: if isOwner(userId);
       }
     }
 
-    // Rules for the 'chats' collection.
+    // Chat Rules
     match /chats/{chatId} {
-      // A user can read a chat document if they are a participant.
-      // `get` is used for single document reads.
+      // Allow a user to read a chat document if they are a participant.
       allow get: if isSignedIn() && request.auth.uid in resource.data.participants;
       
-      // A user can list chats (though the app doesn't do this yet, it's good practice).
-      // `list` is for collection queries.
-      allow list: if isSignedIn();
+      // IMPORTANT: Allow a user to LIST (query) chats if their UID is in the 'participants' array.
+      // This is crucial for the getOrCreateChat function to work.
+      allow list: if isSignedIn() && request.auth.uid in request.query.filters[0][2];
 
-      // A user can create a chat document if their UID is one of the participants.
+      // Allow a user to create a chat if their UID is in the participants list.
       allow create: if isSignedIn() && request.auth.uid in request.resource.data.participants;
 
-      // Rules for the 'messages' subcollection within a chat document.
+      // Messages Subcollection
       match /messages/{messageId} {
-        // Allow reading and writing messages if the user is a participant of the parent chat.
-        // This uses a `get()` to check the parent document's data securely.
+        // Allow reading and creating messages if the user is a participant of the parent chat.
+        // This uses a 'get()' to check the parent document's data securely.
         allow read, create: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
       }
     }
