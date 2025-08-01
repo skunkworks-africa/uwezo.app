@@ -10,7 +10,7 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image
-                src="https://raw.githubusercontent.com/burnt-exe/uwezo/main/uwezo-long.png"
+                src="https://raw.githubusercontent.com/burnt-exe/uwezo/main/public/logo.png"
                 alt="Uwezo Logo"
                 width={120}
                 height={30}
