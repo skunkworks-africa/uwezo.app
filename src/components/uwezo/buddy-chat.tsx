@@ -30,7 +30,7 @@ export function BuddyChat() {
       }
     };
     initChat();
-  }, [user, getOrCreateChat]);
+  }, [user]);
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
@@ -124,7 +124,7 @@ export function BuddyChat() {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message..."
-            disabled={isSending}
+            disabled={isSending || !chatId}
             className="flex-grow"
             autoComplete="off"
           />
