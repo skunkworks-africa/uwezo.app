@@ -23,6 +23,7 @@ export interface UserData {
   instagram?: string;
   kickresume?: string;
   whatsapp?: string;
+  cvUrl?: string;
   createdAt: any;
   updatedAt: any;
 }
@@ -95,17 +96,26 @@ export function useUser() {
     if (!user) throw new Error("User not authenticated");
 
     const userDocRef = doc(db, "users", user.uid);
-    const newDisplayName = `${data.firstName} ${data.lastName}`.trim();
-
-    // Update Firebase Auth profile
-    await updateProfile(user, {
-      displayName: newDisplayName,
-    });
     
+    let displayNameUpdate = {};
+    if (data.firstName || data.lastName) {
+        const currentFirstName = data.firstName || userData?.firstName || '';
+        const currentLastName = data.lastName || userData?.lastName || '';
+        const newDisplayName = `${currentFirstName} ${currentLastName}`.trim();
+        displayNameUpdate = { displayName: newDisplayName };
+        
+        // Update Firebase Auth profile if displayName changes
+        if (newDisplayName !== user.displayName) {
+             await updateProfile(user, {
+                displayName: newDisplayName,
+            });
+        }
+    }
+
     // Update Firestore document
     const dataToUpdate = {
       ...data,
-      displayName: newDisplayName,
+      ...displayNameUpdate,
       updatedAt: serverTimestamp(),
     };
     

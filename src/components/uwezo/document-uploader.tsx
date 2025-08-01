@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { extractSkills, type ExtractSkillsOutput } from "@/ai/flows/cv-skill-extractor";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, UploadCloud, FileText, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, FileText, CheckCircle2, Download } from "lucide-react";
+import { useStorage } from "@/hooks/use-storage";
+import { useUser } from "@/hooks/use-user";
+import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
 
 type FormInputs = {
   cv: FileList;
@@ -19,10 +24,13 @@ interface DocumentUploaderProps {
 }
 
 export function DocumentUploader({ onAnalysisComplete }: DocumentUploaderProps) {
+  const { user } = useAuth();
+  const { uploadFile, isUploading } = useStorage();
+  const { userData, updateUserProfile } = useUser();
   const [extractedSkills, setExtractedSkills] = useState<ExtractSkillsOutput | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { register, handleSubmit, watch } = useForm<FormInputs>();
+  const { register, handleSubmit, watch, reset } = useForm<FormInputs>();
 
   const cvFile = watch("cv");
 
@@ -36,61 +44,104 @@ export function DocumentUploader({ onAnalysisComplete }: DocumentUploaderProps) 
   };
 
   const onAnalyze: SubmitHandler<FormInputs> = async (data) => {
-    if (!data.cv || data.cv.length === 0) {
+    if (!data.cv || data.cv.length === 0 || !user) {
       setError("Please upload a CV to extract skills.");
       return;
     }
     
-    setIsLoading(true);
+    setIsAnalyzing(true);
     setError(null);
     setExtractedSkills(null);
 
+    const file = data.cv[0];
+    const filePath = `cvs/${user.uid}/${file.name}`;
+
     try {
-      const file = data.cv[0];
+      // 1. Upload file to storage
+      const downloadURL = await uploadFile(filePath, file);
+
+      if (!downloadURL) {
+        throw new Error("File upload failed and did not return a URL.");
+      }
+      
+      // 2. Save URL to user profile
+      await updateUserProfile({ cvUrl: downloadURL });
+      
+      // 3. Run AI skill extraction
       const cvDataUri = await readFileAsDataURI(file);
       const result = await extractSkills({ cvDataUri });
       setExtractedSkills(result);
+      
       if (result.skills.length > 0) {
         onAnalysisComplete();
       }
-    } catch (e) {
+
+      reset(); // Clear the file input
+
+    } catch (e: any) {
       console.error(e);
-      setError("Failed to extract skills from CV. Please try again.");
+      setError(`An error occurred: ${e.message || "Please try again."}`);
     } finally {
-      setIsLoading(false);
+      setIsAnalyzing(false);
     }
   };
+  
+  const isLoading = isUploading || isAnalyzing;
 
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>CV Skill Analysis</CardTitle>
+        <CardTitle>CV Skill Analysis & Storage</CardTitle>
         <CardDescription>
-          Upload your CV and our AI will analyze it to identify your key skills.
+          Upload your CV for AI skill analysis. It will be stored securely for your profile.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onAnalyze)} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="cv-upload">Curriculum Vitae (CV)</Label>
-            <Input id="cv-upload" type="file" accept=".pdf,.doc,.docx" {...register("cv")} />
-            {cvFile && cvFile.length > 0 && (
-              <div className="text-sm text-muted-foreground flex items-center gap-2 pt-1">
-                <FileText className="h-4 w-4" />
-                <span>{cvFile[0].name}</span>
-              </div>
-            )}
-          </div>
-          
-          <Button type="submit" className="w-full" disabled={isLoading || !cvFile || cvFile.length === 0}>
-            {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Sparkles className="mr-2 h-4 w-4" />
-            )}
-            {isLoading ? "Analyzing..." : "Analyze CV"}
-          </Button>
-        </form>
+        {userData?.cvUrl ? (
+             <div className="space-y-4">
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-green-50 border border-green-200 text-green-800">
+                    <CheckCircle2 className="h-6 w-6" />
+                    <div>
+                        <p className="font-semibold">Your CV has been uploaded.</p>
+                        <Link href={userData.cvUrl} target="_blank" rel="noopener noreferrer" className="text-sm underline flex items-center gap-1">
+                            View Saved CV <Download className="h-3 w-3" />
+                        </Link>
+                    </div>
+                </div>
+                <div>
+                     <Label htmlFor="cv-upload" className="text-sm text-muted-foreground">Upload a new version:</Label>
+                     <form onSubmit={handleSubmit(onAnalyze)} className="flex items-center gap-2 mt-2">
+                        <Input id="cv-upload" type="file" accept=".pdf,.doc,.docx" {...register("cv")} disabled={isLoading} />
+                        <Button type="submit" disabled={isLoading || !cvFile || cvFile.length === 0}>
+                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Upload"}
+                        </Button>
+                     </form>
+                </div>
+            </div>
+        ) : (
+             <form onSubmit={handleSubmit(onAnalyze)} className="space-y-6">
+                <div className="space-y-2">
+                    <Label htmlFor="cv-upload">Curriculum Vitae (CV)</Label>
+                    <Input id="cv-upload" type="file" accept=".pdf,.doc,.docx" {...register("cv")} />
+                    {cvFile && cvFile.length > 0 && (
+                    <div className="text-sm text-muted-foreground flex items-center gap-2 pt-1">
+                        <FileText className="h-4 w-4" />
+                        <span>{cvFile[0].name}</span>
+                    </div>
+                    )}
+                </div>
+                
+                <Button type="submit" className="w-full" disabled={isLoading || !cvFile || cvFile.length === 0}>
+                    {isLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    )}
+                    {isLoading ? "Processing..." : "Analyze & Save CV"}
+                </Button>
+            </form>
+        )}
+
 
         {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
 
@@ -98,7 +149,7 @@ export function DocumentUploader({ onAnalysisComplete }: DocumentUploaderProps) 
           <div className="mt-6">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-accent" />
-              Extracted Skills
+              Extracted Skills (from last upload)
             </h3>
             <div className="flex flex-wrap gap-2 mt-3">
               {extractedSkills.skills.map((skill, index) => (
