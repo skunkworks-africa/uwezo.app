@@ -21,39 +21,43 @@ export function TaskList({ tasks, onTaskCompletionChange }: TaskListProps) {
         <CardDescription>Complete these tasks to finish your onboarding.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        {tasks.map((task) => (
-          <div
-            key={task.id}
-            className={cn(
-              "flex items-center p-4 rounded-lg border-2 transition-all",
-              task.completed ? "bg-primary/5 border-primary/20" : "bg-card hover:bg-muted/50"
-            )}
-          >
-            <Checkbox
-              id={`task-${task.id}`}
-              checked={task.completed}
-              onCheckedChange={(checked) =>
-                onTaskCompletionChange(task.id, !!checked)
-              }
-              className="mr-4 h-6 w-6"
-              aria-label={`Mark task as ${task.completed ? 'incomplete' : 'complete'}`}
-            />
-            <Label
-              htmlFor={`task-${task.id}`}
-              className={cn(
-                "flex-grow text-base cursor-pointer",
-                task.completed && "line-through text-muted-foreground"
-              )}
-            >
-              {task.title}
-            </Label>
-            {task.completed ? (
-              <CheckCircle2 className="h-6 w-6 text-primary" />
-            ) : (
-              <Circle className="h-6 w-6 text-muted-foreground/30" />
-            )}
-          </div>
-        ))}
+        {tasks.map((task) => {
+            const labelId = `task-label-${task.id}`;
+            return (
+              <div
+                key={task.id}
+                className={cn(
+                  "flex items-center p-4 rounded-lg border-2 transition-all",
+                  task.completed ? "bg-primary/5 border-primary/20" : "bg-card hover:bg-muted/50"
+                )}
+              >
+                <Checkbox
+                  id={`task-${task.id}`}
+                  checked={task.completed}
+                  onCheckedChange={(checked) =>
+                    onTaskCompletionChange(task.id, !!checked)
+                  }
+                  className="mr-4 h-6 w-6"
+                  aria-labelledby={labelId}
+                />
+                <Label
+                  htmlFor={`task-${task.id}`}
+                  id={labelId}
+                  className={cn(
+                    "flex-grow text-base cursor-pointer",
+                    task.completed && "line-through text-muted-foreground"
+                  )}
+                >
+                  {task.title}
+                </Label>
+                {task.completed ? (
+                  <CheckCircle2 className="h-6 w-6 text-primary" />
+                ) : (
+                  <Circle className="h-6 w-6 text-muted-foreground/30" />
+                )}
+              </div>
+            )
+        })}
       </CardContent>
     </Card>
   );
