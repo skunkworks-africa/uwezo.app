@@ -1,32 +1,32 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
-import {setGlobalOptions} from "firebase-functions";
-import {onRequest} from "firebase-functions/https";
+import { setGlobalOptions } from "firebase-functions";
+import { onRequest } from "firebase-functions/v2/https";
+import { onCall } from "firebase-functions/v2/https";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+// ✅ Global function settings
+setGlobalOptions({
+  region: "africa-south1",
+  maxInstances: 10,
+  memory: "256MiB",
+  timeoutSeconds: 30
+});
 
-// For cost control, you can set the maximum number of containers that can be
-// running at the same time. This helps mitigate the impact of unexpected
-// traffic spikes by instead downgrading performance. This limit is a
-// per-function limit. You can override the limit for each function using the
-// `maxInstances` option in the function's options, e.g.
-// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// In the v1 API, each function can only serve one request per container, so
-// this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+// ✅ Simple HTTP endpoint for health check
+export const helloWorld = onRequest((req, res) => {
+  logger.info("Request received", { method: req.method, path: req.path });
+  res.status(200).send("Hello from Firebase in Africa South 1!");
+});
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+// ✅ Example callable function (for use in client-side apps)
+export const echo = onCall((request) => {
+  const message = request.data.message;
+  logger.info("Echo called", { message });
+  return { echoed: message };
+});
+
+// ✅ Firestore trigger (e.g., user registered)
+export const onNewUser = onDocumentCreated("users/{userId}", (event) => {
+  const newUser = event.data?.fields;
+  logger.info("New user registered", { uid: event.params.userId, newUser });
+});
