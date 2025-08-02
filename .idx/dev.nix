@@ -7,15 +7,21 @@
   packages = [
     pkgs.nodejs_20
     pkgs.zulu
+    pkgs.firebase-tools
   ];
   # Sets environment variables in the workspace
-  env = {};
+  env = {
+    NODE_ENV = "development";
+    FIREBASE_PROJECT = "demo-app";
+  };
   # This adds a file watcher to startup the firebase emulators. The emulators will only start if
   # a firebase.json file is written into the user's directory
   services.firebase.emulators = {
     detect = true;
     projectId = "demo-app";
     services = ["auth" "firestore"];
+    auth.port = 9099;
+    firestore.port = 8080;
   };
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
@@ -35,7 +41,7 @@
       previews = {
         web = {
           command = ["npm" "run" "dev" "--" "--port" "$PORT" "--hostname" "0.0.0.0"];
-          manager = "web";
+ manager = "web";
         };
       };
     };
