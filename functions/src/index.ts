@@ -1,43 +1,32 @@
-import { setGlobalOptions } from "firebase-functions";
-import { onRequest, onCall } from "firebase-functions/v2/https";
-import { onDocumentCreated } from "firebase-functions/v2/firestore";
+/**
+ * Import function triggers from their respective submodules:
+ *
+ * import {onCall} from "firebase-functions/v2/https";
+ * import {onDocumentWritten} from "firebase-functions/v2/firestore";
+ *
+ * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ */
+
+import {setGlobalOptions} from "firebase-functions";
+import {onRequest} from "firebase-functions/https";
 import * as logger from "firebase-functions/logger";
 
-// ✅ Global settings: region, concurrency, and resource limits
-setGlobalOptions({
-  region: "africa-south1",
-  maxInstances: 10,
-  memory: "256MiB",
-  timeoutSeconds: 30
-});
+// Start writing functions
+// https://firebase.google.com/docs/functions/typescript
 
-// ✅ HTTP Function — health check / basic ping
-export const helloWorld = onRequest((req, res) => {
-  logger.info("helloWorld called", { method: req.method, path: req.path });
-  res.status(200).send("Hello from Firebase in Africa South 1!");
-});
+// For cost control, you can set the maximum number of containers that can be
+// running at the same time. This helps mitigate the impact of unexpected
+// traffic spikes by instead downgrading performance. This limit is a
+// per-function limit. You can override the limit for each function using the
+// `maxInstances` option in the function's options, e.g.
+// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
+// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
+// functions should each use functions.runWith({ maxInstances: 10 }) instead.
+// In the v1 API, each function can only serve one request per container, so
+// this will be the maximum concurrent request count.
+setGlobalOptions({ maxInstances: 10 });
 
-// ✅ Callable Function — useful for client-side Firebase SDK calls
-export const echo = onCall((request) => {
-  const { message } = request.data;
-  logger.info("echo called", { message });
-
-  if (typeof message !== "string") {
-    throw new Error("Invalid input: message must be a string.");
-  }
-
-  return { echoed: message };
-});
-
-// ✅ Firestore Trigger — handle user creation in `/users/{userId}`
-export const onNewUser = onDocumentCreated("users/{userId}", (event) => {
-  const userId = event.params.userId;
-  const newUser = event.data?.fields;
-
-  if (!newUser) {
-    logger.warn("User document missing data", { userId });
-    return;
-  }
-
-  logger.info("New user registered", { userId, newUser });
-});
+// export const helloWorld = onRequest((request, response) => {
+//   logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });
