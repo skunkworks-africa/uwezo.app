@@ -1,17 +1,20 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
-    "esModuleInterop": true,
-    "moduleResolution": "nodenext",
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "outDir": "lib",
-    "sourceMap": true,
+    "target": "ES2022",                      // ✅ Supports top-level await, class fields, etc.
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],// ✅ Supports browser APIs + modern JS
+    "allowJs": true,
+    "skipLibCheck": true,
     "strict": true,
-    "target": "es2017"
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,                          // ✅ Do not emit `.js` files (Next.js handles this)
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",           // ✅ Preferred for Next.js with SWC or Turbopack
+    "resolveJsonModule": true,
+    "isolatedModules": true,                 // ✅ Required by Next.js
+    "jsx": "preserve",                       // ✅ Leave JSX as-is for SWC
+    "incremental": true
   },
-  "compileOnSave": true,
-  "include": [
-    "src"
-  ]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }
