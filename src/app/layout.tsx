@@ -6,6 +6,20 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/use-auth';
 import { Analytics } from "@vercel/analytics/react"
 
+const metadata = {
+  title: 'Uwezo',
+  description: 'Streamline Your Career Journey',
+  icons: [
+    {
+      url: '/favicon.ico',
+      sizes: 'any',
+    },
+    {
+      url: '/favicon.svg',
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -14,9 +28,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>Uwezo</title>
-        <meta name="description" content="Streamline Your Career Journey" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        <link rel="icon" href={metadata.icons[0].url} sizes={metadata.icons[0].sizes} />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
