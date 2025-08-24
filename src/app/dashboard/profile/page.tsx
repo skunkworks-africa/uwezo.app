@@ -44,6 +44,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useDashboard } from "../layout";
 
+import { userSubmit } from "@/app/actions";
+
 const profileSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
@@ -201,7 +203,8 @@ export default function ProfilePage() {
             Keep your professional and personal information up-to-date.
           </p>
         </div>
-        <Button type="submit" disabled={isSubmitting || isUploading}>
+        <Button type="submit" disabled={isSubmitting || isUploading}
+        formAction={userSubmit}>
             {isSubmitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
