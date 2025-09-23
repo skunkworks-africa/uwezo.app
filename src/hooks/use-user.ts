@@ -30,6 +30,7 @@ export interface UserData {
   updatedAt: any;
 }
 
+
 export interface QuizAttempt {
     id: string;
     score: number;
